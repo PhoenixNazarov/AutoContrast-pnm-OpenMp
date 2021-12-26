@@ -19,7 +19,29 @@ std::vector<unsigned char> readFile(const string& filename) {
     file.seekg(0, std::ios::beg);
     std::vector<unsigned char> fileData(fileSize);
     file.read((char*) &fileData[0], fileSize);
+    file.close();
     return fileData;
+}
+
+
+void FilesOperation::save_file(const string &path) {
+    std::ofstream file(path, std::ios::out|std::ios::binary);
+    copy(header.cbegin(), header.cend(),
+         ostreambuf_iterator<char>(file));
+    copy(bytes.cbegin(), bytes.cend(),
+         ostreambuf_iterator<char>(file));
+    file.close();
+}
+
+void FilesOperation::save_file(const std::string& path, const std::vector<unsigned char> &data) {
+    ofstream out(path, ios::binary);
+    for(unsigned char symb: header){
+        out.write((char*) &symb, sizeof(symb));
+    }
+    for(unsigned char symb: data){
+        out.write((char*) &symb, sizeof(symb));
+    }
+    out.close();
 }
 
 void FilesOperation::open_file(string& path){
@@ -76,24 +98,3 @@ string FilesOperation::read_to_sep(char sep) {
     return buf;
 }
 
-void FilesOperation::save_file(const string &path) {
-    ofstream out(path, ios::binary);
-    for(unsigned char symb: header){
-        out.write((char*) &symb, sizeof(symb));
-    }
-    for(unsigned char symb: bytes){
-        out.write((char*) &symb, sizeof(symb));
-    }
-    out.close();
-}
-
-void FilesOperation::save_file(const std::string& path, const std::vector<unsigned char> &data) {
-    ofstream out(path, ios::binary);
-    for(unsigned char symb: header){
-        out.write((char*) &symb, sizeof(symb));
-    }
-    for(unsigned char symb: data){
-        out.write((char*) &symb, sizeof(symb));
-    }
-    out.close();
-}

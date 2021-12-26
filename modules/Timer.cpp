@@ -47,5 +47,5 @@ void Timer::live() {
         t_d.insert(0, " ");
     }
 
-    std::cout << "T_D: " << t_d << "s, " << "work all program" << std::endl;
+    std::cout << "T_L: " << t_d << "s, " << "work to this" << std::endl;
 }

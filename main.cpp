@@ -1,4 +1,5 @@
 #include <iostream>
+#include <omp.h>
 
 #include "modules/FilesOperation.h"
 #include "modules/Ppm.h"
@@ -10,12 +11,12 @@ using namespace std;
 // logging
 bool data_info = false;
 bool time_info = true;
-bool min_max_before_info = true;
+bool min_max_before_info = false;
 bool min_max_after_info = false;
-int count_threads = 10;
 
 int main() {
     Timer timer;
+    omp_set_num_threads(20);
     string file = "women-asian-94756.pnm";
     string path_inp(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\input\)");
     string path_out(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\output\)");
@@ -23,7 +24,6 @@ int main() {
     path_inp += file;
     path_out += file;
     float ignore_perc = 0.1;
-//    vector<unsigned char> after_contrast;
     FilesOperation data_image;
     try {
         data_image.open_file(path_inp);

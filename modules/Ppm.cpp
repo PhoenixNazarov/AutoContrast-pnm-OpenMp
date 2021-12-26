@@ -3,103 +3,78 @@
 //
 
 #include "Ppm.h"
+#include "Timer.h"
 #include <vector>
 #include <iostream>
-#include "Timer.h"
 
 using namespace std;
 
 extern bool min_max_before_info;
 extern bool min_max_after_info;
-extern int count_threads;
+
+
+
+void process(Channel &channel, int start_index, float ignore_perc, std::vector<unsigned char> &color_data){
+    Timer tm;
+    channel.load_colors(color_data, start_index, 3);
+    tm.pinup(to_string(start_index) + " channel, load_colors");
+    channel.find_ignore_colors(ignore_perc);
+    tm.pinup(to_string(start_index) + " channel, find_ignore");
+    channel.change_colors(color_data, start_index, 3);
+    tm.pinup(to_string(start_index) + " channel, change_colors");
+}
 
 std::vector<unsigned char> Ppm::auto_contrast(vector<unsigned char> &color_data, float ignore_perc) {
-    Timer time;
-//    for (int pos = 0; pos < color_data.size() / 3; pos++) {
-//        int current_step = pos * 3;
-//        R.add_pixel(color_data[current_step]);
-//        G.add_pixel(color_data[current_step + 1]);
-//        B.add_pixel(color_data[current_step + 2]);
-//    }
+    Timer tm;
+    std::vector<Channel> channels = {R, G, B};
 
-
-
-#pragma omp parallel num_threads(count_threads) default(none) shared(color_data, ignore_perc, std::cout)
-    {
+#pragma omp parallel default(none) shared(channels, color_data, tm, ignore_perc)
+{
     #pragma omp sections
     {
         #pragma omp section
-            {
-                std::cout << "R.get_pixels start" << std::endl;
-                R.get_pixels(color_data, 0, 3);
-                std::cout << "R.find_ignore start" << std::endl;
-                R.find_ignore(ignore_perc);
-                R.change_colors(color_data, 0, 3);
-                std::cout << "R end" << std::endl;
-            }
-//        #pragma omp section
-//            {
-//                std::cout << "G.get_pixels start" << std::endl;
-//                G.get_pixels(color_data, 1, 3);
-//                std::cout << "G.find_ignore start" << std::endl;
-//                G.find_ignore(ignore_perc);
-//                G.change_colors(color_data, 0, 3);
-//                std::cout << "G end" << std::endl;
-//            }
-//        #pragma omp section
-//            {
-//                std::cout << "B.get_pixels start" << std::endl;
-//                B.get_pixels(color_data, 2, 3);
-//                std::cout << "B.find_ignore start" << std::endl;
-//                B.find_ignore(ignore_perc);
-//                B.change_colors(color_data, 0, 3);
-//                std::cout << "B end" << std::endl;
-//            }
+        {
+            int i = 0;
+            process(channels[i], i, ignore_perc, color_data);
+        }
+        #pragma omp section
+        {
+            int i = 1;
+            process(channels[i], i, ignore_perc, color_data);
+        }
+        #pragma omp section
+        {
+            int i = 2;
+            process(channels[i], i, ignore_perc, color_data);
+        }
     };
 };
-    time.pinup("decompose pixels into channels");
-
     if (min_max_before_info){
-        R.print_ignore_value("(R)");
-        G.print_ignore_value("(G)");
-        B.print_ignore_value("(B)");
+        channels[0].print_ignore_value("(R)");
+        channels[1].print_ignore_value("(G)");
+        channels[2].print_ignore_value("(B)");
     }
-    time.pinup("find ignore value");
 
-//    if(true) {
-//        vector<unsigned char> color_data2;
-//        R.change_colors();
-//        G.change_colors();
-//        B.change_colors();
-//        for (int pos = 0; pos < color_data.size() / 3; pos++) {
-//            color_data2.push_back(G.colors[pos]);
-//        }
-//        time.pinup("changed colors");
-//        return color_data2;
-//    }
-
-//    R.change_colors(color_data, 0, 3);
-//    G.change_colors(color_data, 1, 3);
-//    B.change_colors(color_data, 2, 3);
-    time.pinup("changed colors");
+    tm.live();
 
     if (min_max_after_info){
+        cout << endl << "new min-max:" << endl;
         R = Channel();
         G = Channel();
         B = Channel();
-        for(int pos = 0; pos < color_data.size() / 3; pos++){
-            int current_step = pos * 3;
-            R.add_pixel(color_data[current_step]);
-            G.add_pixel(color_data[current_step + 1]);
-            B.add_pixel(color_data[current_step + 2]);
+        int s_pos = 0;
+        for (Channel &channel: channels){
+            channel.load_colors(color_data, s_pos, 3);
+            tm.pinup(to_string(s_pos) + " channel, load_colors");
+            channel.find_ignore_colors(0);
+            tm.pinup(to_string(s_pos) + " channel, find_ignore");
+            channel.change_colors(color_data, s_pos, 3);
+            tm.pinup(to_string(s_pos) + " channel, change_colors");
+            s_pos++;
         }
-        R.find_ignore(0);
-        G.find_ignore(0);
-        B.find_ignore(0);
-
-        R.print_ignore_value("(R)");
-        G.print_ignore_value("(G)");
-        B.print_ignore_value("(B)");
+        channels[0].print_ignore_value("(R)");
+        channels[1].print_ignore_value("(G)");
+        channels[2].print_ignore_value("(B)");
     }
 
 
