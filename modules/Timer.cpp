@@ -5,14 +5,30 @@
 #include "Timer.h"
 
 #include <ctime>
-#include <string>
 #include <iostream>
+#include <string>
+#include <string_view>
+
+extern bool time_info;
 
 void Timer::pinup(){
     last_time = clock();
 }
 
 void Timer::pinup(const std::string& message){
-    std::cout << message << ' ' << clock() - last_time << "ms" << std::endl;
+    if (!time_info){
+        return;
+    }
+
+    std::string t_d = std::to_string(clock() - last_time);
+    if (t_d.size() >= 4){
+        t_d.insert(t_d.size() - 3, ".");
+    }
+
+    while (t_d.size() < 6){
+        t_d.insert(0, " ");
+    }
+
+    std::cout << "T_D: " << t_d << "s, " << message << std::endl;
     last_time = clock();
 }
