@@ -19,7 +19,7 @@ public:
     }
     void pinup();
     void pinup(const std::string& message);
-//    void ();
+    void live();
 };
 
 

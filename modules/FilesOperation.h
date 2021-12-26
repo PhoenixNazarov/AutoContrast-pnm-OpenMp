@@ -11,7 +11,7 @@
 
 class FilesOperation {
 public:
-    explicit FilesOperation(std::string& path);
+    void open_file(std::string& path);
     void save_file(const std::string& path);
     void save_file(const std::string& path, const std::vector<unsigned char> &data);
     std::vector<unsigned char> header;

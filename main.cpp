@@ -3,27 +3,35 @@
 #include "modules/FilesOperation.h"
 #include "modules/Ppm.h"
 #include "modules/Pgp.h"
+#include "modules/Timer.h"
+
 using namespace std;
 
 // logging
 bool data_info = false;
 bool time_info = true;
-bool min_max_before_info = false;
+bool min_max_before_info = true;
 bool min_max_after_info = false;
-int count_threads = 1;
+int count_threads = 10;
 
 int main() {
+    Timer timer;
     string file = "women-asian-94756.pnm";
-    string path_inp(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\incorrect\)");
+    string path_inp(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\input\)");
     string path_out(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\output\)");
 
     path_inp += file;
     path_out += file;
-
     float ignore_perc = 0.1;
 //    vector<unsigned char> after_contrast;
-
-    FilesOperation data_image(path_inp);
+    FilesOperation data_image;
+    try {
+        data_image.open_file(path_inp);
+    }
+    catch (exception& e){
+        cout << "Error: cant open file: " << e.what();
+        exit(70);
+    }
     if (data_image.type == "P5") {
         Pgp matrix;
         matrix.auto_contrast(data_image.bytes, ignore_perc);
@@ -34,7 +42,9 @@ int main() {
         cout << "Program Error";
         exit(70);
     }
-
+    timer.pinup();
     data_image.save_file(path_out);
+    timer.pinup("save file");
+    timer.live();
     return 0;
 }

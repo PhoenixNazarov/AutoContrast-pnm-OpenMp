@@ -11,8 +11,7 @@ using namespace std;
 
 extern bool data_info;
 
-std::vector<unsigned char> readFile(const string& filename)
-{
+std::vector<unsigned char> readFile(const string& filename) {
     std::streampos fileSize;
     std::ifstream file(filename, std::ios::binary);
     file.seekg(0, std::ios::end);
@@ -23,12 +22,12 @@ std::vector<unsigned char> readFile(const string& filename)
     return fileData;
 }
 
-FilesOperation::FilesOperation(string& path){
+void FilesOperation::open_file(string& path){
     Timer timer;
     pos = -1;
     int channel = 0;
     bytes = readFile(path);
-    timer.pinup("open file");
+//    timer.pinup("open file");
 
     if (bytes.empty()){
         cout << "Error: file not read";
@@ -65,7 +64,7 @@ FilesOperation::FilesOperation(string& path){
         cout << "   Current size:  " << bytes.size() << endl;
         exit(65);
     }
-    timer.pinup("parse file");
+//    timer.pinup("parse file");
 }
 
 

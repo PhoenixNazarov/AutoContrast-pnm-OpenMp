@@ -11,6 +11,7 @@ using namespace std;
 
 extern bool min_max_before_info;
 extern bool min_max_after_info;
+extern int count_threads;
 
 vector<unsigned char> Pgp::auto_contrast(vector<unsigned char> &color_data, float ignore_perc) {
     Timer time;

@@ -12,8 +12,21 @@
 
 extern int count_threads;
 
-void Channel::add_pixel(unsigned char &color) {
+void Channel::add_pixel(unsigned char color) {
     colors.push_back(color);
+}
+
+#pragma omp declare reduction (merge : std::vector<unsigned char> : omp_out.insert(omp_out.end(), omp_in.begin(), omp_in.end()))
+
+
+void Channel::get_pixels(std::vector<unsigned char> &colors_data, int start_index, int step) {
+    std::vector<int> vec_private;
+#pragma omp parallel for schedule(static)
+    for (int i = start_index; i < colors_data.size(); i+=step) {
+        colors.push_back(colors_data[i]);
+        color_map.at(colors_data[i])++;
+    }
+    std::cout << "ebd  "<< colors.size() << std::endl;
 }
 
 void Channel::print_ignore_value(const std::string& channel_name){
@@ -24,14 +37,77 @@ bool higher_comp (int i,int j) { return (i>j); }
 
 
 void Channel::find_ignore(float perc) {
+    std:: cout<<"what " << colors.size() << std::endl;
+//    for(int i = 100; i <= 110; i++){
+//        std::cout<< i << ' ' << color_map.at(i) << std::endl;
+//    }
     auto index_min = (unsigned long long)((float)colors.size() * perc);
 
-    std::nth_element(colors.begin(), colors.begin()+index_min, colors.end());
-    ignore_lower = colors[index_min];
+    int sum = 0;
+    for (int i = 0; i <= 255; i++){
+        sum += color_map.at(i);
+        if (sum >= index_min){
+            ignore_lower = i;
+            break;
+        }
+    }
 
-    std::nth_element( colors.begin(), colors.begin()+index_min, colors.end(), higher_comp);
-    ignore_higher = colors[index_min];
+    sum = 0;
+    for (int i = 255; i >= 0; i--){
+        sum += color_map.at(i);
+        if (sum >= index_min){
+            ignore_higher = i;
+            break;
+        }
+    }
 
+
+//    bool end = false;
+//
+//    for (int i = 0; i <= 255; i++) {
+//        if (end) { break; }
+//#pragma omp parallel default(none) shared(sum, index_min, i, end) num_threads(count_threads)
+//        {
+//#pragma omp for
+//            for (unsigned char a: colors) {
+//                if (i == a) {
+//                    sum++;
+//                }
+//            }
+//#pragma omp barrier
+//            if (sum >= index_min) {
+//                ignore_lower = i;
+//                end = true;
+//            }
+//        };
+//    }
+//
+//    sum = 0;
+//    end = false;
+//    for (int i = 255; i >= 0; i--) {
+//        if (end) { break; }
+//#pragma omp parallel default(none) shared(sum, index_min, i, end) num_threads(count_threads)
+//        {
+//#pragma omp for
+//            for (unsigned char a: colors) {
+//                if (i == a) {
+//                    sum++;
+//                }
+//            }
+//#pragma omp barrier
+//            if (sum >= index_min) {
+//                ignore_higher = i;
+//                end = true;
+//            }
+//        };
+//    }
+//    auto index_min = (unsigned long long)((float)colors.size() * perc);
+//
+//    std::nth_element(colors.begin(), colors.begin()+index_min, colors.end());
+//    ignore_lower = colors[index_min];
+//
+//    std::nth_element( colors.begin(), colors.begin()+index_min, colors.end(), higher_comp);
+//    ignore_higher = colors[index_min];
 }
 
 int Channel::change_function(int value) {
@@ -77,3 +153,5 @@ void Channel::change_colors() {
         a = diagram.at(a);
     }
 }
+
+
