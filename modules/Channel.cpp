@@ -54,7 +54,6 @@ int Channel::change_function(int value) {
 
 }
 
-//#pragma omp parallel
 void Channel::change_colors(std::vector<unsigned char> &global_colors, int start_index, int step) {
     std::map<int, int> diagram;
     for(int i = 0; i <= 255; i++){

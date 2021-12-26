@@ -3,8 +3,6 @@
 #include "modules/FilesOperation.h"
 #include "modules/Ppm.h"
 #include "modules/Pgp.h"
-
-#include <omp.h>
 using namespace std;
 
 // logging
@@ -15,7 +13,7 @@ bool min_max_after_info = false;
 int count_threads = 1;
 
 int main() {
-    string file = "10.pnm";
+    string file = "women-asian-94756.pnm";
     string path_inp(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\incorrect\)");
     string path_out(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\output\)");
 
@@ -26,11 +24,10 @@ int main() {
 //    vector<unsigned char> after_contrast;
 
     FilesOperation data_image(path_inp);
-
     if (data_image.type == "P5") {
         Pgp matrix;
         matrix.auto_contrast(data_image.bytes, ignore_perc);
-    } else if (data_image.type == "P6"){
+    } else if (data_image.type == "P6") {
         Ppm matrix;
         matrix.auto_contrast(data_image.bytes, ignore_perc);
     } else {
