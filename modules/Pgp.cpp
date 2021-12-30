@@ -19,11 +19,11 @@ vector<unsigned char> Pgp::auto_contrast(vector<unsigned char> &color_data, floa
     std::vector<Channel> channels = {Gray};
     int s_pos = 0;
     for (Channel &channel: channels){
-        channel.load_colors(color_data, s_pos, 3);
+        channel.load_colors(color_data, s_pos, 1);
         time.pinup(to_string(s_pos) + " channel, load_colors");
         channel.find_ignore_colors(ignore_perc);
         time.pinup(to_string(s_pos) + " channel, find_ignore");
-        channel.change_colors(color_data, s_pos, 3);
+        channel.change_colors(color_data, s_pos, 1);
         time.pinup(to_string(s_pos) + " channel, change_colors");
         s_pos++;
     }
