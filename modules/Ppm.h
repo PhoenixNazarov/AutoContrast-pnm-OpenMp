@@ -6,15 +6,10 @@
 #define AUTO_CONTRAST_OPENMP_PPM_H
 #include <vector>
 #include "FilesOperation.h"
-#include "Channel.h"
 
 class Ppm {
 public:
     std::vector<unsigned char> auto_contrast(std::vector<unsigned char> &color_data, float ignore_perc);
-private:
-    Channel R;
-    Channel G;
-    Channel B;
 };
 
 

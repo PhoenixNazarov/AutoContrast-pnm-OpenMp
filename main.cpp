@@ -12,18 +12,13 @@ using namespace std;
 bool data_info = false;
 bool time_info = true;
 bool min_max_before_info = true;
-bool min_max_after_info = false;
 
-int main() {
+int main(int argc, char* argv[]) {
     Timer timer;
-    omp_set_num_threads(20);
-    string file = "photo_2021-12-25_17-02-47.pnm";
-    string path_inp(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\input\)");
-    string path_out(R"(C:\Users\Phoenix\CLionProjects\auto_contrast_OpenMp\test\output\)");
-
-    path_inp += file;
-    path_out += file;
-    float ignore_perc = 0.0;
+    omp_set_num_threads(atoi(argv[1]));
+    string path_inp(argv[2]);
+    string path_out(argv[3]);
+    float ignore_perc = atof(argv[4]);
     FilesOperation data_image;
     try {
         data_image.open_file(path_inp);
