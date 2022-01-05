@@ -5,7 +5,6 @@
 #include <fstream>
 
 #include "FilesOperation.h"
-#include "Timer.h"
 
 using namespace std;
 
@@ -16,6 +15,10 @@ std::vector<unsigned char> readFile(const string& filename) {
     std::ifstream file(filename, std::ios::binary);
     file.seekg(0, std::ios::end);
     fileSize = file.tellg();
+    if (fileSize == -1 || fileSize == 0){
+        cout << "Error: file not find" << endl;
+        exit(0);
+    }
     file.seekg(0, std::ios::beg);
     std::vector<unsigned char> fileData(fileSize);
     file.read((char*) &fileData[0], fileSize);
@@ -45,17 +48,14 @@ void FilesOperation::save_file(const std::string& path, const std::vector<unsign
 }
 
 void FilesOperation::open_file(string& path){
-    Timer timer;
     pos = -1;
     int channel = 0;
     bytes = readFile(path);
-//    timer.pinup("open file");
 
     if (bytes.empty()){
-        cout << "Error: file not read";
+        cout << "Error: file not read" << endl;
         exit(65);
     }
-
     type = read_to_sep('\n');
     if (type == "P5"){
         if (data_info){cout << "Current format: P5(PGM)" << endl;}
@@ -66,7 +66,7 @@ void FilesOperation::open_file(string& path){
         channel = 3;
     }
     else {
-        cout << "Data format error: " << type;
+        cout << "Data format error: " << type << endl;
         exit(65);
     }
 
@@ -86,7 +86,6 @@ void FilesOperation::open_file(string& path){
         cout << "   Current size:  " << bytes.size() << endl;
         exit(65);
     }
-//    timer.pinup("parse file");
 }
 
 

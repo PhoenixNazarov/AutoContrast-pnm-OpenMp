@@ -1,21 +1,19 @@
 #include <iostream>
 #include <omp.h>
+#include <ctime>
 
 #include "modules/FilesOperation.h"
 #include "modules/Ppm.h"
 #include "modules/Pgp.h"
-#include "modules/Timer.h"
 
 using namespace std;
 
 // logging
 bool data_info = false;
-bool time_info = true;
-bool min_max_before_info = true;
+bool min_max_before_info = false;
 
 int main(int argc, char* argv[]) {
-    Timer timer;
-    omp_set_num_threads(atoi(argv[1]));
+    int count_threads = atoi(argv[1]);
     string path_inp(argv[2]);
     string path_out(argv[3]);
     float ignore_perc = atof(argv[4]);
@@ -27,6 +25,8 @@ int main(int argc, char* argv[]) {
         cout << "Error: cant open file: " << e.what();
         exit(70);
     }
+
+    int time = clock();
     if (data_image.type == "P5") {
         Pgp matrix;
         matrix.auto_contrast(data_image.bytes, ignore_perc);
@@ -37,9 +37,8 @@ int main(int argc, char* argv[]) {
         cout << "Program Error";
         exit(70);
     }
-    timer.pinup();
+    std::cout << "Time (" << count_threads <<" thread(s)): " << clock() - time << " ms\n";
+
     data_image.save_file(path_out);
-    timer.pinup("save file");
-    timer.live();
     return 0;
 }

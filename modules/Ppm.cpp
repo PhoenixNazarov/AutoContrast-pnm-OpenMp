@@ -3,67 +3,24 @@
 //
 
 #include "Ppm.h"
-#include "Timer.h"
+#include "MyMath.h"
 #include <vector>
 #include <iostream>
-#include <omp.h>
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
 extern bool min_max_before_info;
 
-int perep(float new_value) {
-    if (new_value < 0) {
-        return 0;
-    }
-    if (new_value >= 255) {
-        return 255;
-    }
-    if (new_value < 127) {
-        return std::floor(new_value);
-    } else {
-        return std::ceil(new_value);
-    }
-}
-
-int change_function(int value, int min, int max) {
-    float new_value = max;
-    if (max != min) {
-        new_value = (value - min) * (255 / (max - min));
-    }
-    return perep(new_value);
-}
-
-int find_min(const int values[], unsigned long long index_min){
-    unsigned long long sum = 0;
-    for (int i = 0; i < 256; i++){
-        sum += values[i];
-        if (sum > index_min){
-            return i;
-        }
-    }
-    return 0;
-}
-
-int find_max(const int values[], unsigned long long index_min){
-    unsigned long long sum = 0;
-    for (int i = 255; i >= 0; i--){
-        sum += values[i];
-        if (sum > index_min){
-            return i;
-        }
-    }
-    return 255;
-}
 
 std::vector<unsigned char> Ppm::auto_contrast(vector<unsigned char> &color_data, float ignore_perc) {
-    Timer tm;
+//    int time = clock();
     int color_map_r[256] = {0};
     int color_map_g[256] = {0};
     int color_map_b[256] = {0};
     int i;
-#pragma omp parallel for default(none) shared(color_map_r, color_map_g, color_map_b, color_data) private(i) schedule(static)
+//#pragma omp parallel for default(none) shared(color_map_r, color_map_g, color_map_b, color_data) private(i) schedule(static)
     for (i = 0; i < color_data.size(); i += 3) {
         color_map_r[color_data[i]]++;
         color_map_g[color_data[i+1]]++;
@@ -88,8 +45,13 @@ std::vector<unsigned char> Ppm::auto_contrast(vector<unsigned char> &color_data,
         cout << "(B) min: " << min_b << ", max: " << max_b << endl;
         cout << "(RGB) min: " << cur_min << ", max: " << cur_max << endl;
     }
-    tm.pinup("find min max");
 
+//    cout << "find min-max  " << clock() - time << endl;
+//    time = clock();
+
+    if (cur_min >= cur_max) {
+        return color_data;
+    }
 
     int diagram[256] = {0};
     for(i = 1; i < 256; i++) {
@@ -100,8 +62,7 @@ std::vector<unsigned char> Ppm::auto_contrast(vector<unsigned char> &color_data,
     for (i = 0; i < color_data.size(); i++) {
         color_data[i] = diagram[color_data[i]];
     }
-
-    tm.pinup("change colors");
+//    cout << "change_colors " << clock() - time << endl;
 
     return color_data;
 }
